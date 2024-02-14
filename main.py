@@ -1,5 +1,9 @@
-import requests
+from flask import Flask, send_file
+import threading
 import time
+import requests
+
+app = Flask(__name__)
 
 def get_proxy(web):
     response = requests.get(web)
@@ -34,5 +38,17 @@ def main():
             except requests.RequestException:
                 pass
         time.sleep(300)
-if __name__ == "__main__":
-    main()
+#FLASK
+@app.route('/get_proxy', methods=['GET'])
+def get_proxy_route():
+    try:
+        file_path = 'proxy.txt'
+        return send_file(file_path, as_attachment=True)
+    except Exception as e:
+        return str(e)
+
+flask_thread = threading.Thread(target=app.run, kwargs={'debug': False})
+main_thread = threading.Thread(target=main)
+if __name__ == '__main__':
+    flask_thread.start()
+    main_thread.start()
